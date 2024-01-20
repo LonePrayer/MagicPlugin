@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.elmakers.mine.bukkit.api.block.MaterialAndData;
 import com.elmakers.mine.bukkit.api.item.Cost;
+import com.elmakers.mine.bukkit.api.magic.Mage;
 import com.elmakers.mine.bukkit.api.magic.MageController;
 
 public interface EntityData extends Cloneable {
@@ -98,6 +99,7 @@ public interface EntityData extends Cloneable {
     @Deprecated
     void load(@Nonnull MageController controller, ConfigurationSection parameters);
     void load(ConfigurationSection parameters);
+    void load(ConfigurationSection parameters, Mage mage);
 
     /**
      * Attach this mob to an existing entity. This does not modify the entity, and only has an effect

@@ -5934,6 +5934,28 @@ public class MagicController implements MageController {
         return mob;
     }
 
+    @org.jetbrains.annotations.Nullable
+    @Override
+    public EntityData getMob(ConfigurationSection parameters, @org.jetbrains.annotations.Nullable Mage mage) {
+        String mobType = parameters.getString("type");
+        com.elmakers.mine.bukkit.entity.EntityData mob = null;
+        if (mobType != null && !mobType.isEmpty()) {
+            mob = getMob(mobType);
+        }
+        if (mob != null && parameters != null && !parameters.getKeys(false).isEmpty()) {
+            mob = mob.clone();
+            ConfigurationSection effectiveParameters = ConfigurationUtils.cloneConfiguration(mob.getConfiguration());
+            // Have to preserve the mob type config, it can't be overridden
+            String originalType = effectiveParameters.getString("type", mobType);
+            effectiveParameters = ConfigurationUtils.addConfigurations(effectiveParameters, parameters);
+            effectiveParameters.set("type", originalType);
+            mob.load(effectiveParameters, mage);
+        } else if (mob == null) {
+            mob = new com.elmakers.mine.bukkit.entity.EntityData(this, parameters);
+        }
+        return mob;
+    }
+
     @Override
     @Nullable
     public EntityData getMob(ConfigurationSection parameters) {

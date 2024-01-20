@@ -67,6 +67,7 @@ import com.elmakers.mine.bukkit.api.magic.MageModifier;
 import com.elmakers.mine.bukkit.block.MaterialAndData;
 import com.elmakers.mine.bukkit.boss.BossBarConfiguration;
 import com.elmakers.mine.bukkit.boss.BossBarTracker;
+import com.elmakers.mine.bukkit.configuration.MageParameters;
 import com.elmakers.mine.bukkit.item.Cost;
 import com.elmakers.mine.bukkit.magic.MagicMetaKeys;
 import com.elmakers.mine.bukkit.tasks.DisguiseTask;
@@ -76,6 +77,8 @@ import com.elmakers.mine.bukkit.utility.EntityMetadataUtils;
 import com.elmakers.mine.bukkit.utility.RandomUtils;
 import com.elmakers.mine.bukkit.utility.SafetyUtils;
 import com.elmakers.mine.bukkit.utility.WeightedPair;
+
+import me.clip.placeholderapi.PlaceholderAPI;
 
 /**
  * This class stores information about an Entity.
@@ -343,6 +346,14 @@ public class EntityData implements com.elmakers.mine.bukkit.api.entity.EntityDat
 
     @Override
     public void load(ConfigurationSection parameters) {
+        load(parameters, null);
+    }
+
+    @Override
+    public void load(ConfigurationSection parameters, Mage mage) {
+
+        MageParameters mageParameters = new MageParameters(mage, "");
+
         this.configuration = parameters;
         // This is required to allow changes to health
         hasChangedHealth = true;
@@ -363,11 +374,21 @@ public class EntityData implements com.elmakers.mine.bukkit.api.entity.EntityDat
         isHidden = parameters.getBoolean("hidden");
         nameVisible = parameters.getBoolean("show_name");
         if (parameters.contains("health")) {
-            health = parameters.getDouble("health", 1);
+            if (mage != null) {
+                String value = PlaceholderAPI.setPlaceholders(mage.getPlayer(), parameters.getString("health"));
+                health = mageParameters.evaluate(value);
+            } else {
+                health = parameters.getDouble("health", 1);
+            }
             maxHealth = health;
         }
         if (parameters.contains("max_health")) {
-            maxHealth = parameters.getDouble("max_health", 1);
+            if (mage != null) {
+                String value = PlaceholderAPI.setPlaceholders(mage.getPlayer(), parameters.getString("max_health"));
+                maxHealth = mageParameters.evaluate(value);
+            } else {
+                maxHealth = parameters.getDouble("max_health", 1);
+            }
         }
         isSilent = parameters.getBoolean("silent", false);
         if (parameters.contains("persist")) {
@@ -634,8 +655,14 @@ public class EntityData implements com.elmakers.mine.bukkit.api.entity.EntityDat
             }
             for (String attributeKey : keys) {
                 try {
-                    Attribute attribute = Attribute.valueOf(attributeKey.toUpperCase());
-                    attributes.put(attribute, attributeConfiguration.getDouble(attributeKey));
+                    if (mage != null) {
+                        String value = PlaceholderAPI.setPlaceholders(mage.getPlayer(), attributeConfiguration.getString(attributeKey));
+                        Attribute attribute = Attribute.valueOf(attributeKey.toUpperCase());
+                        attributes.put(attribute, mageParameters.evaluate(value));
+                    } else {
+                        Attribute attribute = Attribute.valueOf(attributeKey.toUpperCase());
+                        attributes.put(attribute, attributeConfiguration.getDouble(attributeKey));
+                    }
                 } catch (Exception ex) {
                     controller.getLogger().log(Level.WARNING, "Invalid attribute type: " + attributeKey);
                 }

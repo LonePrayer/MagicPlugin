@@ -37,7 +37,7 @@ public class MageParameters extends ParameterizedConfiguration {
 
     @Override
     @Nullable
-    protected Double evaluate(String expression) {
+    public Double evaluate(String expression) {
         if (mage != null && mage.isPlayer()) {
             expression = mage.getController().setPlaceholders(mage.getPlayer(), expression);
         }

@@ -135,7 +135,7 @@ public class SpawnEntityAction extends CompoundAction
 
         if (parameters.contains("type"))
         {
-            entityData = context.getController().getMob(parameters);
+            entityData = context.getController().getMob(parameters, context.getMage());
         }
 
         if (parameters.contains("reason"))
